@@ -1,0 +1,28 @@
+name: Build Kernel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_kernel:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare the environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y elfutils libarchive-tools
+
+      - name: Building kernel
+        run: |
+          source build.sh
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: RN11-spes
+          tag_name: ${{ github.run_id }}
+          files: uvite-Ksu*.zip
