@@ -2,27 +2,50 @@ name: Build Kernel
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - workflow
 
 jobs:
   build_kernel:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Prepare the environment
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y elfutils libarchive-tools
-
-      - name: Building kernel
-        run: |
-          source build.sh
-
-      - name: Upload to release
-        uses: softprops/action-gh-release@v2
         with:
-          name: RN11-spes
-          tag_name: ${{ github.run_id }}
-          files: uvite-Ksu*.zip
+          repository: "muralivijay/kernel_xiaomi_sm6225"
+          ref: "main"
+
+      - name: Install Dependencies
+        run: sudo apt-get install -y elfutils libarchive-tools
+
+      - name: Setup AOSP Clang
+        run: git clone --depth 1 https://gitlab.com/ThankYouMario/android_prebuilts_clang-standalone.git clang-r450784e
+
+      - name: Setup KernelSU
+        run: |
+          git config user.email 81718060+Kajal4414@users.noreply.github.com && git config user.name Kajal4414
+          git fetch https://github.com/Kajal4414/android_kernel_xiaomi_spes && git cherry-pick 00af258
+          rm -rf KernelSU && curl -LSs "https://raw.githubusercontent.com/Kajal4414/KernelSU/main/kernel/setup.sh" | bash -
+
+      - name: Compile Kernel
+        run: |
+          export KBUILD_BUILD_USER=nobody
+          export KBUILD_BUILD_HOST=android-build
+          export PATH="$(pwd)/clang-r450784e/bin:$PATH"
+          make O=out ARCH=arm64 vendor/spes-perf_defconfig CC=clang LD=ld.lld AS=llvm-as AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- LLVM=1 LLVM_IAS=1 Image.gz dtbo.img -j$(nproc --all) 2> >(tee log.txt >&2) || exit $?
+
+      - name: Package Kernel
+        run: |
+          zipname="Murali_Kernel_$(date '+%d-%m-%Y')_$(git rev-parse --short=7 HEAD).zip"
+          git clone -q https://github.com/Kajal4414/AnyKernel3.git AnyKernel3
+          cp "out/arch/arm64/boot/Image.gz" "out/arch/arm64/boot/dtbo.img" AnyKernel3
+          (cd AnyKernel3 && zip -r9 "../$zipname" * -x .git README.md *placeholder)
+          if [ -f "$zipname" ]; then echo -e "\e[32mZIP Created: $zipname\e[0m"; else exit 1; fi
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Murali_Kernel_${{ github.run_id }}
+          path: Murali_Kernel_*.zip
