@@ -17,7 +17,7 @@ export PATH="$(pwd)/clang-r450784e/bin:$PATH"
 rm -rf out error.log KernelSU AnyKernel3 *.zip
 
 # Prompt user for KernelSU integration
-echo -e "\e[33mDo you want to integrate KernelSU? (y/N):\e[0m " && read integrate_kernelsu
+echo -e -n "\e[33mDo you want to integrate KernelSU? (y/N):\e[0m " && read integrate_kernelsu
 
 if [ "$integrate_kernelsu" = "y" ]; then
     git fetch https://github.com/Kajal4414/android_kernel_xiaomi_spes.git 13.0-ksu
