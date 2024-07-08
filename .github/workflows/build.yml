@@ -34,7 +34,7 @@ jobs:
 
       - name: Package Kernel
         run: |
-          zipname="Murali_Kernel_$(date '+%d-%m-%Y')_$(git rev-parse --short=7 HEAD).zip"
+          zipname="Murali_KernelSU_$(date '+%d-%m-%Y')_$(git rev-parse --short=7 HEAD).zip"
           git clone -q https://github.com/Kajal4414/AnyKernel3.git -b murali
           cp "out/arch/arm64/boot/Image.gz" "out/arch/arm64/boot/dtbo.img" AnyKernel3
           (cd AnyKernel3 && zip -r9 "../$zipname" * -x .git README.md *placeholder)
