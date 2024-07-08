@@ -1,7 +1,7 @@
 # Install dependencies
 sudo apt install -y elfutils libarchive-tools flex bc
 
-# Clone the Clang compiler repository
+# Clone the Clang compiler repository if not already cloned
 if [ ! -d "clang-r450784e" ]; then
     git clone --depth 1 https://gitlab.com/ThankYouMario/android_prebuilts_clang-standalone.git clang-r450784e
 fi
@@ -20,6 +20,9 @@ make O=out ARCH=arm64 vendor/spes-perf_defconfig \
     OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip \
     CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
     LLVM=1 LLVM_IAS=1 Image.gz dtbo.img -j$(nproc --all) 2>&1 | tee build.log
+
+# Clear the terminal screen
+clear
 
 # Check if build failed and display error logs
 if [ $? -ne 0 ]; then
