@@ -13,11 +13,11 @@ export KBUILD_BUILD_USER=nobody
 export KBUILD_BUILD_HOST=android-build
 export PATH="$(pwd)/clang-r450784e/bin:$PATH"
 
-# Clean build directory and previous build files
+# Clean build directory and previous build log
 rm -rf out error.log KernelSU AnyKernel3 *.zip
 
 # Prompt user for KernelSU integration
-read -p "Do you want to integrate KernelSU? (y/N): " integrate_kernelsu
+echo -e "\e[33mDo you want to integrate KernelSU? (y/N):\e[0m " && read integrate_kernelsu
 
 if [ "$integrate_kernelsu" = "y" ]; then
     git fetch https://github.com/Kajal4414/android_kernel_xiaomi_spes.git 13.0-ksu
@@ -49,7 +49,7 @@ if [ -f "out/arch/arm64/boot/Image.gz" ]; then
     cp "out/arch/arm64/boot/Image.gz" "out/arch/arm64/boot/dtbo.img" AnyKernel3
     (cd AnyKernel3 && zip -r9 "../$ZIPNAME" * -x .git README.md *placeholder)
     if [ -f "$ZIPNAME" ]; then
-        echo -e "\nCompleted in $((SECONDS / 60)) minutes and $((SECONDS % 60)) seconds!"
-        echo -e "\e[32mZIP: $ZIPNAME\e[0m"
+        echo -e "\e[32m\nCompleted in $((SECONDS / 60)) minutes and $((SECONDS % 60)) seconds!\e[0m"
+        echo -e "\e[1;32mZIP: $ZIPNAME\e[0m"
     fi
 fi
