@@ -14,7 +14,7 @@ export KBUILD_BUILD_HOST=android-build
 export PATH="$(pwd)/clang-r450784e/bin:$PATH"
 
 # Clean build directory and previous build log
-rm -rf out build.log
+rm -rf out error.log KernelSU
 
 # Prompt user for KernelSU integration
 read -p "Do you want to integrate KernelSU? (y/N): " integrate_kernelsu
@@ -22,7 +22,6 @@ read -p "Do you want to integrate KernelSU? (y/N): " integrate_kernelsu
 if [ "$integrate_kernelsu" = "y" ]; then
     git fetch https://github.com/Kajal4414/android_kernel_xiaomi_spes.git 13.0-ksu
     git cherry-pick db26e4c
-    rm -rf KernelSU
     curl -LSs "https://raw.githubusercontent.com/Kajal4414/KernelSU/main/kernel/setup.sh" | bash -
     ZIP_SUFFIX="SU"
 else
