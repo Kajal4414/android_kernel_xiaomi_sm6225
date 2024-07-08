@@ -13,8 +13,8 @@ export KBUILD_BUILD_USER=nobody
 export KBUILD_BUILD_HOST=android-build
 export PATH="$(pwd)/clang-r450784e/bin:$PATH"
 
-# Clean build directory and previous build log
-rm -rf out error.log KernelSU
+# Clean build directory and previous build files
+rm -rf out error.log KernelSU AnyKernel3 *.zip
 
 # Prompt user for KernelSU integration
 read -p "Do you want to integrate KernelSU? (y/N): " integrate_kernelsu
@@ -33,7 +33,7 @@ make O=out ARCH=arm64 vendor/spes-perf_defconfig \
     CC=clang LD=ld.lld AS=llvm-as AR=llvm-ar NM=llvm-nm \
     OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip \
     CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
-    LLVM=1 LLVM_IAS=1 Image.gz dtbo.img -j$(nproc --all) 2> error.log
+    LLVM=1 LLVM_IAS=1 Image.gz dtbo.img -j$(nproc --all) 2> >(tee error.log >&2)
 
 # Display last 50 lines of log if error.log exists
 if [ -s "error.log" ]; then
@@ -49,7 +49,7 @@ if [ -f "out/arch/arm64/boot/Image.gz" ]; then
     cp "out/arch/arm64/boot/Image.gz" "out/arch/arm64/boot/dtbo.img" AnyKernel3
     (cd AnyKernel3 && zip -r9 "../$ZIPNAME" * -x .git README.md *placeholder)
     if [ -f "$ZIPNAME" ]; then
-        echo -e "\nCompleted in $((SECONDS / 60)) minute(s) and $((SECONDS % 60)) second(s)!"
+        echo -e "\nCompleted in $((SECONDS / 60)) minutes and $((SECONDS % 60)) seconds!"
         echo -e "\e[32mZIP: $ZIPNAME\e[0m"
     fi
 fi
