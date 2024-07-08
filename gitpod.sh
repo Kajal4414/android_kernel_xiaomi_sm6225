@@ -2,7 +2,9 @@
 sudo apt install -y elfutils libarchive-tools flex bc
 
 # Clone the Clang compiler repository
-git clone --depth 1 https://gitlab.com/ThankYouMario/android_prebuilts_clang-standalone.git clang-r450784e
+if [ ! -d "clang-r450784e" ]; then
+    git clone --depth 1 https://gitlab.com/ThankYouMario/android_prebuilts_clang-standalone.git clang-r450784e
+fi
 
 # Set environment variables
 export KBUILD_BUILD_USER=nobody
