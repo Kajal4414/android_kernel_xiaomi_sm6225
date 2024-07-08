@@ -17,11 +17,9 @@ export PATH="$(pwd)/clang-r450784e/bin:$PATH"
 rm -rf out build.log
 
 # Prompt user for KernelSU integration
-read -p "Do you want to integrate KernelSU? (y/n): " integrate_kernelsu
+read -p "Do you want to integrate KernelSU? (y/N): " integrate_kernelsu
 
-# Process user input
 if [ "$integrate_kernelsu" = "y" ]; then
-    # Fetch and cherry-pick commit
     git fetch https://github.com/Kajal4414/android_kernel_xiaomi_spes.git 13.0-ksu
     git cherry-pick db26e4c
     rm -rf KernelSU && curl -LSs "https://raw.githubusercontent.com/Kajal4414/KernelSU/main/kernel/setup.sh" | bash -
@@ -39,4 +37,16 @@ if [ -f "build.log" ]; then
     clear
     echo -e "\e[1;31mBuild failed. Please check the error logs below:\e[0m"
     tail -n 50 build.log
+fi
+
+# Packageing Kernel wi
+if [ -f "out/arch/arm64/boot/Image.gz" ]; then
+    ZIPNAME="murali_kernel_$(date '+%d-%m-%Y')_$(git rev-parse --short=7 HEAD).zip"
+    git clone -q https://github.com/Kajal4414/AnyKernel3.git -b murali
+    cp "out/arch/arm64/boot/Image.gz" "out/arch/arm64/boot/dtbo.img" AnyKernel3
+    (cd AnyKernel3 && zip -r9 "../$ZIPNAME" * -x .git README.md *placeholder)
+    if [ -f "$ZIPNAME" ]; then
+        echo -e "\nCompleted in $((SECONDS / 60)) minute(s) and $((SECONDS % 60)) second(s) !"
+        echo -e "\e[32mZIP: $ZIPNAME\e[0m"; 
+    else exit 1; fi
 fi
