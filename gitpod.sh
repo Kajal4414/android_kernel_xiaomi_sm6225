@@ -24,6 +24,9 @@ if [ "$integrate_kernelsu" = "y" ]; then
     git cherry-pick db26e4c
     rm -rf KernelSU
     curl -LSs "https://raw.githubusercontent.com/Kajal4414/KernelSU/main/kernel/setup.sh" | bash -
+    ZIP_SUFFIX="SU"
+else
+    ZIP_SUFFIX=""
 fi
 
 # Build kernel and log errors
@@ -42,7 +45,7 @@ fi
 
 # Package kernel into zip if build successful
 if [ -f "out/arch/arm64/boot/Image.gz" ]; then
-    ZIPNAME="murali_kernel_$(date '+%d-%m-%Y')_$(git rev-parse --short=7 HEAD).zip"
+    ZIPNAME="Murali_Kernel$ZIP_SUFFIX_$(date '+%d-%m-%Y')_$(git rev-parse --short=7 HEAD).zip"
     git clone -q https://github.com/Kajal4414/AnyKernel3.git -b murali
     cp "out/arch/arm64/boot/Image.gz" "out/arch/arm64/boot/dtbo.img" AnyKernel3
     (cd AnyKernel3 && zip -r9 "../$ZIPNAME" * -x .git README.md *placeholder)
