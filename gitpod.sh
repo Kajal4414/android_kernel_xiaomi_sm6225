@@ -16,6 +16,17 @@ export PATH="$(pwd)/clang-r450784e/bin:$PATH"
 # Clean build directory and previous build log
 rm -rf out build.log
 
+# Prompt user for KernelSU integration
+read -p "Do you want to integrate KernelSU? (y/n): " integrate_kernelsu
+
+# Process user input
+if [ "$integrate_kernelsu" = "y" ]; then
+    # Fetch and cherry-pick commit
+    git fetch https://github.com/Kajal4414/android_kernel_xiaomi_spes.git 13.0-ksu
+    git cherry-pick db26e4c
+    rm -rf KernelSU && curl -LSs "https://raw.githubusercontent.com/Kajal4414/KernelSU/main/kernel/setup.sh" | bash -
+fi
+
 # Build kernel and log errors
 make O=out ARCH=arm64 vendor/spes-perf_defconfig \
     CC=clang LD=ld.lld AS=llvm-as AR=llvm-ar NM=llvm-nm \
