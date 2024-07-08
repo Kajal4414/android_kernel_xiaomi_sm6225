@@ -24,8 +24,10 @@ if [ "$integrate_kernelsu" = "y" ]; then
     git cherry-pick db26e4c
     curl -LSs "https://raw.githubusercontent.com/Kajal4414/KernelSU/main/kernel/setup.sh" | bash -
     ZIP_SUFFIX="SU"
+    echo -e "\e[32mKernelSU Building...\e[0m"
 else
     ZIP_SUFFIX=""
+    echo -e "\e[33mKernelSU Skiping...\e[0m "
 fi
 
 # Build kernel and log errors
@@ -37,14 +39,18 @@ make O=out ARCH=arm64 vendor/spes-perf_defconfig \
 
 # Display last 50 lines of log if error.log exists
 if [ -s "error.log" ]; then
-    clear
     echo -e "\e[1;31mBuild failed. Please check the error logs below:\e[0m"
     tail -n 50 error.log
 fi
 
+# Dummy
+mkdir -p out/arch/arm64/boot
+fallocate -l 8M out/arch/arm64/boot/Image.gz
+fallocate -l 4M out/arch/arm64/boot/dtbo.img
+
 # Package kernel into zip if build successful
 if [ -f "out/arch/arm64/boot/Image.gz" ]; then
-    ZIPNAME="Murali_Kernel$ZIP_SUFFIX_$(date '+%d-%m-%Y')_$(git rev-parse --short=7 HEAD).zip"
+    ZIPNAME="Murali_Kernel${ZIP_SUFFIX}_$(date '+%d-%m-%Y')_$(git rev-parse --short=7 HEAD).zip"
     git clone -q https://github.com/Kajal4414/AnyKernel3.git -b murali
     cp "out/arch/arm64/boot/Image.gz" "out/arch/arm64/boot/dtbo.img" AnyKernel3
     (cd AnyKernel3 && zip -r9 "../$ZIPNAME" * -x .git README.md *placeholder)
